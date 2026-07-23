@@ -1,5 +1,5 @@
-const CACHE = "comb-recovery-v1";
-const ASSETS = ["./", "./index.html", "./manifest.json", "./icon.svg"];
+const CACHE = "comb-toolkit-v2";
+const ASSETS = ["./", "./index.html", "./recovery-app.html", "./classifier.html", "./burn.html", "./manifest.json", "./icon.svg"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));

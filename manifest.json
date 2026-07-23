@@ -1,7 +1,7 @@
 {
-  "name": "Comb — Honeyland Recovery",
+  "name": "Comb — Honeyland Toolkit",
   "short_name": "Comb",
-  "description": "Recover NFTs frozen by Honeyland's staking programs when the official frontend is unavailable.",
+  "description": "Honeyland NFT Recovery Toolkit - Unfreeze, Classify, and Burn NFTs.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#12100D",
