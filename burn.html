@@ -55,6 +55,8 @@
   .toolbar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;align-items:center;}
   .count-pill{font-family:var(--mono);font-size:10.5px;color:var(--text-dim);margin-left:auto;}
   footer{text-align:center;color:var(--text-dim);font-family:var(--mono);font-size:10px;padding:16px 14px 0;}
+  .home-btn{background:transparent;border:1px solid var(--line);color:var(--text-dim);font-family:var(--display);font-size:12px;padding:6px 10px;border-radius:2px;cursor:pointer;margin-left:auto;}
+  .home-btn:hover{border-color:var(--amber);color:var(--amber);}
 </style>
 </head>
 <body>
@@ -64,6 +66,7 @@
     <span class="mark">Comb</span>
     <span class="sub">Burn Generations (mpl-core) — reclaims rent SOL</span>
   </div>
+  <button class="home-btn" onclick="window.location='index.html'">← Home</button>
 </div>
 
 <main>
