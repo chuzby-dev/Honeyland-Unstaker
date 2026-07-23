@@ -4,11 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#12100D" />
-<meta http-equiv="refresh" content="0; url=home.html" />
-<title>Comb — Honeyland Toolkit</title>
-<link rel="manifest" href="manifest.json" />
+<title>Comb — Honeyland Recovery</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
-<link rel="apple-touch-icon" href="icon.svg" />
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500;700&display=swap');
   :root{
@@ -78,9 +75,6 @@
 </style>
 </head>
 <body>
-
-<!-- Redirecting to home.html for proper landing page -->
-<noscript><p>JavaScript is required. <a href="index.html">Click here to continue to the landing page.</a></p></noscript>
 
 <div class="topbar">
   <div class="brand">
@@ -514,8 +508,14 @@ async function runBatch(){
   document.getElementById('unstake-btn').disabled = false;
 }
 
-if ('serviceWorker' in navigator && location.protocol === 'https:'){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
+// One-time cleanup for anyone who visited before this was a plain static
+// site: unregister any leftover service worker and wipe its caches. This
+// page never registers a new one - no PWA install prompt, ever.
+if ('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+}
+if ('caches' in window){
+  caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
 }
 </script>
 </body>

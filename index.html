@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#12100D" />
 <title>Comb — Honeyland Toolkit</title>
-<link rel="manifest" href="manifest.json" />
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500&display=swap');
@@ -67,8 +66,14 @@
 </div>
 
 <script>
-if ('serviceWorker' in navigator && location.protocol === 'https:'){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
+// One-time cleanup for anyone who visited before this was a plain static
+// site: unregister any leftover service worker and wipe its caches. This
+// page never registers a new one - no PWA install prompt, ever.
+if ('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+}
+if ('caches' in window){
+  caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
 }
 </script>
 </body>
