@@ -4,7 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#12100D" />
-<title>Comb — Honeyland Recovery</title>
+<meta http-equiv="refresh" content="0; url=home.html" />
+<title>Comb — Honeyland Toolkit</title>
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icon.svg" />
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500;700&display=swap');
   :root{
@@ -69,18 +73,28 @@
   .toolbar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;align-items:center;}
   .count-pill{font-family:var(--mono);font-size:10.5px;color:var(--text-dim);margin-left:auto;}
   footer{text-align:center;color:var(--text-dim);font-family:var(--mono);font-size:10px;padding:16px 14px 0;}
+  .home-btn{background:transparent;border:1px solid var(--line);color:var(--text-dim);font-family:var(--display);font-size:12px;padding:6px 10px;border-radius:2px;cursor:pointer;margin-left:auto;}
+  .home-btn:hover{border-color:var(--amber);color:var(--amber);}
 </style>
 </head>
 <body>
+
+<!-- Redirecting to home.html for proper landing page -->
+<noscript><p>JavaScript is required. <a href="index.html">Click here to continue to the landing page.</a></p></noscript>
 
 <div class="topbar">
   <div class="brand">
     <span class="mark">Comb</span>
     <span class="sub">Honeyland Recovery — v2</span>
   </div>
+  <button class="home-btn" onclick="window.location='./index.html'">← Home</button>
 </div>
 
 <main>
+  <div class="warn" style="margin-bottom:14px;font-size:12.5px;border-color:var(--amber);line-height:1.6;">
+    <strong>Unofficial, community-built tool.</strong> Not affiliated with, endorsed by, or supported by Honeyland or its team. Provided as-is, with no warranty of any kind. Everything here runs entirely in your own browser — your private key or wallet connection is never sent anywhere. You are solely responsible for reviewing what this does and for any transactions you approve. The creator(s) accept no liability for any loss of funds, NFTs, or other damages arising from use of this tool. Use at your own risk.
+  </div>
+
   <div class="card open" id="card-config">
     <div class="card-head" onclick="toggleCard('card-config')"><span class="title">1 · Connection</span><span class="chev">▸</span></div>
     <div class="card-body">
@@ -88,6 +102,11 @@
 
       <label>RPC endpoint (Helius required for scanning)</label>
       <input type="text" id="rpc" placeholder="https://mainnet.helius-rpc.com/?api-key=..." />
+      <p class="help" style="margin-top:4px;">
+        Don't have one? Free, takes under a minute:
+        <a href="https://www.helius.dev" target="_blank" rel="noopener" style="color:var(--amber);">helius.dev</a>
+        → sign up (email only, no card) → dashboard shows your RPC URL with the key already in it → copy the whole thing here.
+      </p>
 
       <label>Private key (base58) — recommended</label>
       <input type="password" id="privkey" placeholder="base58 secret key" />
@@ -109,13 +128,8 @@
   <div class="card" id="card-scan">
     <div class="card-head" onclick="toggleCard('card-scan')"><span class="title">2 · Scan for frozen NFTs</span><span class="status" id="status-scan">not run</span></div>
     <div class="card-body">
-      <p class="help">Classifies every frozen NFT by its on-chain mechanism. Two categories are recoverable via transaction; legacy program assets are permanently unrecoverable (bytecode deleted).</p>
+      <p class="help">Classifies every frozen NFT by which real on-chain mechanism holds it. Only two categories are currently actionable — the rest are shown for visibility but can't be processed yet.</p>
       <button class="action" onclick="scanWallet()">Scan wallet</button>
-      <div id="scan-report" style="display:none;margin-top:12px;">
-        <div style="font-family:var(--mono);font-size:11px;line-height:1.6;color:var(--text-dim);background:var(--surface-2);border:1px solid var(--line);border-radius:2px;padding:10px;">
-          <div id="report-breakdown"></div>
-        </div>
-      </div>
       <div class="out" id="scan-log" style="display:none"></div>
     </div>
   </div>
@@ -149,7 +163,26 @@
   </div>
 </main>
 
-<footer>Honeyland Core (classic + Generations/mpl-core), client-side signing only.</footer>
+<footer>
+  Honeyland Core (classic + Generations/mpl-core), client-side signing only.
+  <div style="margin-top:10px;">
+    Found this useful? Donations welcome, never required:<br/>
+    <span id="donate-addr" style="font-family:var(--mono);color:var(--amber);word-break:break-all;">6acRcA8VC66QA7kzmjQE7ZnhUT9ijzw9d8akiXWmwWNY</span>
+    <br/>
+    <button class="action small" style="margin-top:6px;" onclick="copyDonateAddress()">Copy address</button>
+  </div>
+</footer>
+<script>
+function copyDonateAddress(){
+  const addr = document.getElementById('donate-addr').textContent;
+  navigator.clipboard.writeText(addr).then(() => {
+    const btn = event.target;
+    const original = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  });
+}
+</script>
 
 <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
 <script>
@@ -346,32 +379,6 @@ async function scanWallet(){
     items.forEach(it => counts[it.category] = (counts[it.category]||0)+1);
     log('scan-log', `\n\nBreakdown:\n${Object.entries(counts).map(([k,v])=>`  ${k}: ${v}`).join('\n')}`, true);
 
-    // Generate detailed classification report
-    const recoverable = ['core_recoverable', 'core_asset_known_pool'];
-    const recoverableCount = items.filter(it => recoverable.includes(it.category)).length;
-    const legacyCount = counts['legacy_dead'] || 0;
-    const report = `
-CLASSIFICATION REPORT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Total Frozen NFTs: ${items.length}
-
-✓ RECOVERABLE (${recoverableCount}):
-  • Core Program (Classic):  ${counts['core_recoverable']||0}
-  • Core Program (Generations): ${counts['core_asset_known_pool']||0}
-
-✗ UNRECOVERABLE:
-  • Legacy Program (deleted): ${legacyCount}
-  • Unidentified: ${counts['unclassified']||0}
-  • Compressed: ${counts['compressed']||0}
-
-NEXT STEP: Select recoverable NFTs below, then click
-"Unfreeze selected" to send recovery transactions.
-
-${legacyCount > 0 ? '\n⚠ ' + legacyCount + ' NFT(s) are frozen by the legacy Honeyland program.\nIts on-chain bytecode was deleted and cannot be recovered.\nSee research guide: UNSTAKE_INSTRUCTION_RESEARCH.md' : ''}
-`;
-    document.getElementById('report-breakdown').textContent = report;
-    document.getElementById('scan-report').style.display = 'block';
-
     renderTable();
     setStatus('status-scan', `${items.length} found`, 'ok');
     document.getElementById('card-list').classList.add('open');
@@ -505,6 +512,10 @@ async function runBatch(){
   }
   log('batch-log', `\n--- done: ${done}  failed: ${failed} ---`, true);
   document.getElementById('unstake-btn').disabled = false;
+}
+
+if ('serviceWorker' in navigator && location.protocol === 'https:'){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 </script>
 </body>
