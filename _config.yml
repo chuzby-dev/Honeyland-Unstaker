@@ -1,0 +1,4 @@
+theme: null
+plugins: []
+include: ["."]
+exclude: [".git", "node_modules"]
